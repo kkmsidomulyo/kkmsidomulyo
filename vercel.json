@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "routes": [
+      { "src": "/", "dest": "index.html" },
+      { "src": "/artikel", "dest": "artikel.html" },
+      { "src": "/galeri_foto", "dest": "galeri_foto.html" },
+      { "src": "/galeri_vidio", "dest": "galeri_vidio.html" },
+      { "src": "/visi_misi", "dest": "visi_misi.html" }
+    ]
+  }
