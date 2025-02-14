@@ -380,12 +380,22 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      function convertGoogleDriveUrl(url) {
-        // Extract file ID from Google Drive URL
-        const fileId = url.match(/[-\w]{25,}/);
-        if (fileId) {
-          // Return direct download URL
-          return `https://drive.google.com/uc?export=view&id=${fileId[0]}`;
+      // Base64 placeholder image (light gray with PKK text)
+      const placeholderImage = `data:image/svg+xml;base64,${btoa(`
+  <svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100%" height="100%" fill="#f0f0f0"/>
+    <text x="50%" y="50%" font-family="Arial" font-size="14" fill="#666" text-anchor="middle" dy=".3em">PKK Sidomulyo</text>
+  </svg>
+`)}`;
+
+      function getAccessibleImageUrl(url) {
+        // Check if it's a Google Drive URL
+        if (url.includes("drive.google.com")) {
+          const fileId = url.match(/[-\w]{25,}/);
+          if (fileId) {
+            // Try the thumbnail URL first as it's more likely to work without authentication
+            return `https://drive.google.com/thumbnail?id=${fileId[0]}&sz=w1000`;
+          }
         }
         return url;
       }
@@ -414,12 +424,12 @@
 
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const directImageUrl = convertGoogleDriveUrl(data.fileUrl);
+            const accessibleUrl = getAccessibleImageUrl(data.fileUrl);
 
             console.log("Processing image:", {
               title: data.title,
               originalUrl: data.fileUrl,
-              convertedUrl: directImageUrl,
+              convertedUrl: accessibleUrl,
             });
 
             const imageDiv = document.createElement("div");
@@ -428,11 +438,11 @@
             imageDiv.innerHTML = `
         <div class="gallery-item">
           <img 
-            src="${directImageUrl}"
+            src="${accessibleUrl}"
             alt="${data.title || "Gallery Image"}" 
             class="img-fluid"
             loading="lazy"
-            onerror="this.onerror=null; this.src='/assets/img/placeholder.jpg';"
+            onerror="this.onerror=null; this.src='${placeholderImage}';"
           >
           <div class="gallery-caption">
             <p>${data.title || "Untitled"}</p>
@@ -460,7 +470,6 @@
           console.log("Gallery load complete");
         });
       });
-
       // Add this to check if Firebase is properly initialized
       document.addEventListener("DOMContentLoaded", () => {
         console.log("Firebase app initialized:", !!app);
