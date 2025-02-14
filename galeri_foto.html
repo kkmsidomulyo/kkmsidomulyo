@@ -393,9 +393,7 @@
           );
 
           const querySnapshot = await getDocs(q);
-
-          // Add debug logging
-          console.log("Number of documents found:", querySnapshot.size);
+          console.log("Documents found:", querySnapshot.size);
 
           if (querySnapshot.empty) {
             imageGallery.innerHTML =
@@ -403,23 +401,27 @@
             return;
           }
 
+          imageGallery.innerHTML = ""; // Clear existing content
+
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Debug log each image data
-            console.log("Image data:", data);
+            console.log("Image data:", {
+              title: data.title,
+              url: data.fileUrl,
+              timestamp: data.timestamp,
+            });
 
             const imageDiv = document.createElement("div");
             imageDiv.className = "col-md-4 mb-4";
 
-            // Add error handling and loading indicator
+            // Create image element with Google Drive URL
             imageDiv.innerHTML = `
         <div class="gallery-item">
           <img 
-            src="${data.fileUrl}" 
+            src="${data.fileUrl}"
             alt="${data.title || "Gallery Image"}" 
             class="img-fluid"
-            onerror="this.onerror=null; this.src='assets/img/icon.png'; console.log('Image failed to load:', this.src);"
-            onload="console.log('Image loaded successfully:', this.src)"
+            onerror="console.error('Failed to load image:', this.src)"
           >
           <div class="gallery-caption">
             <p>${data.title || "Untitled"}</p>
@@ -427,20 +429,26 @@
         </div>
       `;
 
-            // Log when each image div is added
-            console.log("Adding image div to gallery");
             imageGallery.appendChild(imageDiv);
           });
         } catch (error) {
-          console.error("Detailed error in loadGalleryImages:", error);
+          console.error("Error loading gallery:", error);
           imageGallery.innerHTML = `
       <div class="alert alert-danger w-100">
         <p>Error loading gallery: ${error.message}</p>
-        <small>Error details: ${error.code || "Unknown error code"}</small>
+        <small>Check console for details</small>
       </div>
     `;
         }
       }
+
+      // Add debugging for image URLs
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("Starting gallery load...");
+        loadGalleryImages().then(() => {
+          console.log("Gallery load complete");
+        });
+      });
 
       // Add this to check if Firebase is properly initialized
       document.addEventListener("DOMContentLoaded", () => {
