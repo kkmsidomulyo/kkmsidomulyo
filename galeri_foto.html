@@ -355,7 +355,6 @@
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
 
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
       import {
@@ -381,6 +380,7 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
+      // Import statements remain the same
       async function loadGalleryImages() {
         const imageGallery = document.getElementById("imageGallery");
 
@@ -394,6 +394,9 @@
 
           const querySnapshot = await getDocs(q);
 
+          // Add debug logging
+          console.log("Number of documents found:", querySnapshot.size);
+
           if (querySnapshot.empty) {
             imageGallery.innerHTML =
               '<p class="text-center w-100">Tidak ada foto yang tersedia</p>';
@@ -402,27 +405,49 @@
 
           querySnapshot.forEach((doc) => {
             const data = doc.data();
+            // Debug log each image data
+            console.log("Image data:", data);
+
             const imageDiv = document.createElement("div");
             imageDiv.className = "col-md-4 mb-4";
+
+            // Add error handling and loading indicator
             imageDiv.innerHTML = `
-              <div class="gallery-item">
-                <img src="${data.fileUrl}" alt="${data.title}" class="img-fluid">
-                <div class="gallery-caption">
-                  <p>${data.title}</p>
-                </div>
-              </div>
-            `;
+        <div class="gallery-item">
+          <img 
+            src="${data.fileUrl}" 
+            alt="${data.title || "Gallery Image"}" 
+            class="img-fluid"
+            onerror="this.onerror=null; this.src='assets/img/icon.png'; console.log('Image failed to load:', this.src);"
+            onload="console.log('Image loaded successfully:', this.src)"
+          >
+          <div class="gallery-caption">
+            <p>${data.title || "Untitled"}</p>
+          </div>
+        </div>
+      `;
+
+            // Log when each image div is added
+            console.log("Adding image div to gallery");
             imageGallery.appendChild(imageDiv);
           });
         } catch (error) {
-          console.error("Error loading gallery images:", error);
+          console.error("Detailed error in loadGalleryImages:", error);
           imageGallery.innerHTML = `
-            <div class="alert alert-danger w-100">
-              Gagal memuat galeri foto: ${error.message}
-            </div>
-          `;
+      <div class="alert alert-danger w-100">
+        <p>Error loading gallery: ${error.message}</p>
+        <small>Error details: ${error.code || "Unknown error code"}</small>
+      </div>
+    `;
         }
       }
+
+      // Add this to check if Firebase is properly initialized
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("Firebase app initialized:", !!app);
+        console.log("Firestore initialized:", !!db);
+        loadGalleryImages();
+      });
 
       // Load images when the page loads
       document.addEventListener("DOMContentLoaded", loadGalleryImages);
