@@ -383,16 +383,6 @@
       async function loadGalleryImages() {
         const imageGallery = document.getElementById("imageGallery");
 
-        // Function to convert Google Drive view URL to direct image URL
-        function getGoogleDriveDirectUrl(url) {
-          // Extract file ID from Google Drive URL
-          const fileId = url.match(/\/d\/(.+?)\/view/)?.[1];
-          if (!fileId) return url;
-
-          // Convert to direct image URL
-          return `https://drive.google.com/uc?export=view&id=${fileId}`;
-        }
-
         try {
           const uploadsRef = collection(db, "uploads");
           const q = query(
@@ -414,12 +404,9 @@
 
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Convert the URL to direct image URL
-            const directImageUrl = getGoogleDriveDirectUrl(data.fileUrl);
-
-            console.log("Processing image:", {
-              original: data.fileUrl,
-              converted: directImageUrl,
+            console.log("Image data:", {
+              title: data.title,
+              url: data.fileUrl,
             });
 
             const imageDiv = document.createElement("div");
@@ -428,9 +415,10 @@
             imageDiv.innerHTML = `
         <div class="gallery-item">
           <img 
-            src="${directImageUrl}"
+            src="${data.fileUrl}"
             alt="${data.title || "Gallery Image"}" 
             class="img-fluid"
+            loading="lazy"
             onerror="console.error('Failed to load image:', this.src)"
           >
           <div class="gallery-caption">
@@ -452,7 +440,6 @@
         }
       }
 
-      // Add debugging for URL conversion
       document.addEventListener("DOMContentLoaded", () => {
         console.log("Starting gallery load...");
         loadGalleryImages().then(() => {
