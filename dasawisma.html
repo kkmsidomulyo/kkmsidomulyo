@@ -188,6 +188,53 @@
     </section>
     <!-- ======= end dasawisma ======= -->
 
+      <!--tabel rekap data-->
+    <section id="rekap-keluarga" class="rekap-keluarga">
+      <div class="container-md" data-aos="fade-in">
+        <div class="row justify-content-center">
+          <div class="col-10">
+            <h3 class="mb-4">Rekap Data Keluarga</h3>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Nama Dasa Wisma</th>
+                    <th>Jumlah KRT</th>
+                    <th>Jumlah KK</th>
+                    <th>Total Laki-laki</th>
+                    <th>Total Perempuan</th>
+                    <th>Balita Laki-laki</th>
+                    <th>Balita Perempuan</th>
+                    <th>PUS</th>
+                    <th>WUS</th>
+                    <th>Ibu Hamil</th>
+                    <th>Ibu Menyusui</th>
+                    <th>Lansia</th>
+                    <th>Buta</th>
+                    <th>Berkebutuhan Khusus</th>
+                    <th>Rumah Sehat</th>
+                    <th>Rumah Tidak Sehat</th>
+                    <th>Memiliki Tempat Sampah</th>
+                    <th>Memiliki SPAL</th>
+                    <th>Memiliki Jamban</th>
+                    <th>Memiliki Stiker P4K</th>
+                    <th>Sumur Air</th>
+                    <th>PDAM Air</th>
+                    <th>Lainnya Air</th>
+                    <th>Makanan Beras</th>
+                    <th>Makanan Non-Beras</th>
+                  </tr>
+                </thead>
+                <tbody id="rekapTableBody">
+                  <!-- Data akan dimuat dari Firebase -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
@@ -261,6 +308,66 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOluooURyiYp6R-4BWdLwZNs9f3VZreaY",
+      authDomain: "pkkdesasidomulyo.firebaseapp.com",
+      projectId: "pkkdesasidomulyo",
+      storageBucket: "pkkdesasidomulyo.firebasestorage.com",
+      messagingSenderId: "647872499017",
+      appId: "1:647872499017:web:6a12f09da5018a0c769e98",
+      measurementId: "G-0T78MDY5ED",
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+  
+    async function loadRekapData() {
+      const tableBody = document.getElementById("rekapTableBody");
+      tableBody.innerHTML = "";
+  
+      const querySnapshot = await getDocs(collection(db, "dasawisma"));
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${data.namaDasawisma}</td>
+          <td>${data.jumlahKRT}</td>
+          <td>${data.jumlahKK}</td>
+          <td>${data.totalL}</td>
+          <td>${data.totalP}</td>
+          <td>${data.balitaL}</td>
+          <td>${data.balitaP}</td>
+          <td>${data.pus}</td>
+          <td>${data.wus}</td>
+          <td>${data.ibuHamil}</td>
+          <td>${data.ibuMenyusui}</td>
+          <td>${data.lansia}</td>
+          <td>${data.buta}</td>
+          <td>${data.berkebutuhanKhusus}</td>
+          <td>${data.rumahSehat}</td>
+          <td>${data.rumahTidakSehat}</td>
+          <td>${data.memilikiTempatSampah}</td>
+          <td>${data.memilikiSPAL}</td>
+          <td>${data.memilikiJamban}</td>
+          <td>${data.memilikiStikerP4K}</td>
+          <td>${data.sumurAir}</td>
+          <td>${data.pdamAir}</td>
+          <td>${data.lainnyaAir}</td>
+          <td>${data.makananBeras}</td>
+          <td>${data.makananNonBeras}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+  
+    loadRekapData();
+  </script>
+  
 
 </body>
 
